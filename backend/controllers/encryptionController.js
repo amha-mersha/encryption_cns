@@ -5,8 +5,10 @@ module.exports = {
   encryptData: (req, res) => {
     const { algorithm, data, key } = req.body;
 
-    if (!key) {
-      return res.status(400).json({ error: "Key is required" });
+    if (!key || !key.value || !key.length) {
+      return res
+        .status(400)
+        .json({ error: "Key object with value and length is required" });
     }
 
     let encryptionResult;
@@ -14,15 +16,31 @@ module.exports = {
     try {
       switch (algorithm) {
         case "AES":
-          const aesKey = Buffer.from(key, "hex");
+          // Validate AES key length (128, 192, or 256 bits)
+          if (![128, 192, 256].includes(key.length)) {
+            return res
+              .status(400)
+              .json({ error: "AES key must be 128, 192, or 256 bits" });
+          }
+          const aesKey = Buffer.from(key.value, "hex");
           encryptionResult = encryptionService.encryptAES(data, aesKey);
           break;
         case "3DES":
-          const desKey = Buffer.from(key, "hex");
+          if (key.length !== 192) {
+            return res.status(400).json({
+              error: "3DES key must be 192 bits (168 bits effective)",
+            });
+          }
+          const desKey = Buffer.from(key.value, "hex");
           encryptionResult = encryptionService.encrypt3DES(data, desKey);
           break;
         case "OTP":
-          const otpKey = Buffer.from(key, "hex");
+          if (key.length !== data.length * 8) {
+            return res
+              .status(400)
+              .json({ error: "OTP key length must match data length in bits" });
+          }
+          const otpKey = Buffer.from(key.value, "hex");
           encryptionResult = encryptionService.encryptOTP(data, otpKey);
           break;
         default:
@@ -74,19 +92,32 @@ module.exports = {
     try {
       switch (algorithm) {
         case "AES":
-          generatedKey = keyGenService.generateAESKey();
+          if (length && ![128, 192, 256].includes(length)) {
+            return res
+              .status(400)
+              .json({ error: "AES key length must be 128, 192, or 256 bits" });
+          }
+          generatedKey = keyGenService.generateAESKey(length || 256);
           break;
+
         case "3DES":
+          if (length && length !== 192) {
+            return res
+              .status(400)
+              .json({ error: "3DES key length must be 192 bits" });
+          }
           generatedKey = keyGenService.generate3DESKey();
           break;
+
         case "OTP":
           if (!length || isNaN(length) || length <= 0) {
             return res
               .status(400)
               .json({ error: "OTP key length must be a positive number" });
           }
-          generatedKey = keyGenService.generateOTPKey(parseInt(length, 10));
+          generatedKey = keyGenService.generateOTPKey(Math.ceil(length / 8));
           break;
+
         default:
           return res
             .status(400)
