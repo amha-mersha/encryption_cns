@@ -1,15 +1,15 @@
 const crypto = require("crypto");
 
 module.exports = {
-  generateAESKey: (length = 32) => {
-    return crypto.randomBytes(length);
+  generateAESKey: () => {
+    return crypto.randomBytes(32);
   },
 
   generate3DESKey: () => {
-    return crypto.randomBytes(24); // 3DES key must be 24 bytes
+    return crypto.randomBytes(24);
   },
 
-  generateOTPKey: (length = 64) => {
+  generateOTPKey: (length) => {
     return crypto.randomBytes(length);
   },
 };

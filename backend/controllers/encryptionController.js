@@ -37,7 +37,6 @@ module.exports = {
   decryptData: (req, res) => {
     const { algorithm, data, key, iv } = req.body;
 
-    // Check if the key is provided
     if (!key) {
       return res.status(400).json({ error: "Key is required" });
     }
@@ -68,7 +67,7 @@ module.exports = {
   },
 
   generateKey: (req, res) => {
-    const { algorithm } = req.body;
+    const { algorithm, length } = req.body;
 
     let generatedKey;
 
@@ -81,7 +80,12 @@ module.exports = {
           generatedKey = keyGenService.generate3DESKey();
           break;
         case "OTP":
-          generatedKey = keyGenService.generateOTPKey();
+          if (!length || isNaN(length) || length <= 0) {
+            return res
+              .status(400)
+              .json({ error: "OTP key length must be a positive number" });
+          }
+          generatedKey = keyGenService.generateOTPKey(parseInt(length, 10));
           break;
         default:
           return res
