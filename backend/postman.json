@@ -1,0 +1,81 @@
+{
+  "info": {
+    "_postman_id": "your-collection-id",
+    "name": "Encryption API Tests",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Generate Key",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"algorithm\": \"AES\",\n  \"length\": 128\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:3000/api/encrypt/generate-key",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "3000",
+          "path": ["api", "encrypt", "generate-key"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Encrypt Data",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"algorithm\": \"AES\",\n  \"data\": \"Hello, World!\",\n  \"key\": {\n    \"value\": \"2b7e151628aed2a6abf7158809cf4f3c\",\n    \"length\": 128\n  }\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:3000/api/encrypt/encrypt",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "3000",
+          "path": ["api", "encrypt", "encrypt"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Decrypt Data",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"algorithm\": \"AES\",\n  \"data\": \"encrypted-data-here\",\n  \"key\": {\n    \"value\": \"2b7e151628aed2a6abf7158809cf4f3c\",\n    \"length\": 128\n  },\n  \"iv\": \"iv-value-here\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:3000/api/encrypt/decrypt",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "3000",
+          "path": ["api", "encrypt", "decrypt"]
+        }
+      },
+      "response": []
+    }
+  ]
+}

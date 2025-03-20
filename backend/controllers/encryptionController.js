@@ -16,13 +16,21 @@ module.exports = {
     try {
       switch (algorithm) {
         case "AES":
-          // Validate AES key length (128, 192, or 256 bits)
           if (![128, 192, 256].includes(key.length)) {
             return res
               .status(400)
               .json({ error: "AES key must be 128, 192, or 256 bits" });
           }
           const aesKey = Buffer.from(key.value, "hex");
+          if (
+            ![16, 24, 32].includes(aesKey.length) ||
+            aesKey.length * 8 !== key.length
+          ) {
+            return res.status(400).json({
+              error:
+                "AES key must be 16, 24, or 32 bytes when decoded from hex or there is a mistmach between the length provided and the actual length",
+            });
+          }
           encryptionResult = encryptionService.encryptAES(data, aesKey);
           break;
         case "3DES":
@@ -32,6 +40,12 @@ module.exports = {
             });
           }
           const desKey = Buffer.from(key.value, "hex");
+          if (desKey.length !== 24 || desKey.length * 8 !== key.length) {
+            return res.status(400).json({
+              error:
+                "3DES key must be 24 bytes (192 bits) when decoded from hex or there is a mistmach between the length provided and the actual length",
+            });
+          }
           encryptionResult = encryptionService.encrypt3DES(data, desKey);
           break;
         case "OTP":
