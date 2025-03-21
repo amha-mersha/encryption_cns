@@ -1,10 +1,12 @@
 import { Card, CardHeader, CardContent, CardTitle } from "@/components/ui/card"
-import ModeSelector from "./components/ModeSelector";
 import EncryptionForm from "./components/EncryptionForm";
 import DecryptionForm from "./components/DecryptionFrom";
+import OutputDisplay from "./components/OutputDisplay";
+import { useState } from "react";
 
 
 export default function App() {
+  const [outputVal, setOutputVal] = useState("")
 
   return (
     <div className="container mx-auto py-10 px-4">
@@ -14,9 +16,11 @@ export default function App() {
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <EncryptionForm />
-            <DecryptionForm />
+            <EncryptionForm updateOutput={setOutputVal} />
+            <DecryptionForm updateOutput={setOutputVal} />
           </div>
+          <p className="font-bold text-xl mt-4">Output</p>
+          <OutputDisplay value={outputVal} />
         </CardContent>
       </Card>
     </div>

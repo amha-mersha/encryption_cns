@@ -11,43 +11,61 @@ import {
   SelectItem,
 } from "@/components/ui/select";
 import { Button } from "./ui/button";
-import OutputDisplay from "./OutputDisplay";
 import ModeSelector from "./ModeSelector";
+import { encryptData } from "@/utils/api";
+import KeyGenerator from "./KeyGenerator";
+import { Dispatch, SetStateAction } from "react";
 
 type EncryptionMethod = "OTP" | "3DES" | "AES";
-export default function EncryptionForm() {
-  const [method, setMethod] = useState<EncryptionMethod>("OTP")
-  const [inputText, setInputText] = useState("")
+export default function EncryptionForm({ updateOutput }: { updateOutput: Dispatch<SetStateAction<string>> }) {
+  const [algorithm, setAlgorithm] = useState<EncryptionMethod>("OTP");
+  const [data, setData] = useState<string>("");
   const [key, setKey] = useState("")
-  const [output, setOutput] = useState("")
   const isKeyValid = () => {
-    if (method === "OTP") {
-      return key.length === inputText.length;
-    } else if (method === "3DES") {
+    if (algorithm === "OTP") {
+      return key.length === data.length;
+    } else if (algorithm === "3DES") {
       return key.length === 24;
-    } else if (method === "AES") {
+    } else if (algorithm === "AES") {
       const requiredLength = parseInt(aesMode, 10) / 8;
       return key.length === requiredLength;
     }
     return false;
   };
   const [aesMode, setAesMode] = useState<string>("");
-  const handleEncrypt1 = () => {
-    setOutput(`Encrypted with ${method}${method === "AES" ? `-${aesMode}` : ""}: ${inputText}`)
-  }
+
+  const handleEncrypt = async () => {
+    let keyLength = key.length;
+    switch (algorithm) {
+      case "OTP":
+        keyLength = key.length;
+        break;
+      case "3DES":
+        keyLength = 192;
+        break;
+      case "OTP":
+        keyLength = parseInt(aesMode, 10);
+    }
+    try {
+      const result = await encryptData(algorithm, data, key, keyLength);
+      updateOutput(`Encrypted Data: ${result.encryptedData} \n IV: ${result.iv}`)
+    } catch (err) {
+      updateOutput(err instanceof Error ? "Error: " + err.message : "Error: An error has occured")
+    }
+  };
   return (
     <div className="space-y-4">
       <div className="grid w-full gap-2">
         <Label htmlFor="encrypt" className="font-bold">Encrypt Data</Label>
-        <ModeSelector method={method} setMethod={setMethod} />
+        <ModeSelector method={algorithm} setMethod={setAlgorithm} />
         <Textarea
           id="encrypt"
           placeholder="Enter data to encrypt"
-          value={inputText}
-          onChange={(e) => setInputText(e.target.value)}
-          className="min-h-[100px] italic"
+          value={data}
+          onChange={(e) => setData(e.target.value)}
+          className="min-h-[60px] italic"
         />
-        <Button onClick={handleEncrypt1} className="flex-1 font-bold active:bg-zinc-900" disabled={!isKeyValid()}>
+        <Button onClick={handleEncrypt} className="flex-1 font-bold active:bg-zinc-900" disabled={!isKeyValid()}>
           Encrypt
         </Button>
       </div>
@@ -69,8 +87,8 @@ export default function EncryptionForm() {
           />
         </div>
 
-        {method === "AES" && (
-          <div className="w-[180px]">
+        {algorithm === "AES" && (
+          <div className="w-[120px]">
             <Select value={aesMode} onValueChange={setAesMode}>
               <SelectTrigger className="w-full border border-gray-300 bg-white rounded-md px-3 py-2">
                 <SelectValue placeholder="Key length" />
@@ -84,7 +102,7 @@ export default function EncryptionForm() {
           </div>
         )}
       </div>
-      <OutputDisplay targetLable={output} />
+      <KeyGenerator lengthOTP={data.length} />
     </div>
   )
 }
