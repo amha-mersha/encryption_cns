@@ -3,66 +3,88 @@ import { Textarea } from "./ui/textarea";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 import { Input } from "./ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@radix-ui/react-select";
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from "@/components/ui/select";
 import { Button } from "./ui/button";
 import OutputDisplay from "./OutputDisplay";
+import ModeSelector from "./ModeSelector";
 
-export default function DecryptionForm({ method }: { method: string }) {
+type DecryptionMethod = "OTP" | "3DES" | "AES";
+export default function DecryptionForm() {
+  const [method, setMethod] = useState<DecryptionMethod>("OTP")
   const [inputText, setInputText] = useState("")
-  const [key2, setKey2] = useState("")
-  const [output1, setOutput1] = useState("")
-  const isOtpKeyValid1 = method !== "OTP" || key2.length >= inputText.length
-  const [aesMode, setAesMode] = useState("CBC")
-  const handleDecrypt = () => {
-    setOutput1(`Decrypted with ${method}${method === "AES" ? `-${aesMode}` : ""}: ${inputText}`)
+  const [key, setKey] = useState("")
+  const [output, setOutput] = useState("")
+  const isKeyValid = () => {
+    if (method === "OTP") {
+      return key.length === inputText.length;
+    } else if (method === "3DES") {
+      return key.length === 24;
+    } else if (method === "AES") {
+      const requiredLength = parseInt(aesMode, 10) / 8;
+      return key.length === requiredLength;
+    }
+    return false;
+  };
+  const [aesMode, setAesMode] = useState<string>("");
+  const handleDecrypt1 = () => {
+    setOutput(`Decrypted with ${method}${method === "AES" ? `-${aesMode}` : ""}: ${inputText}`)
   }
   return (
     <div className="space-y-4">
       <div className="grid w-full gap-2">
-        <Label htmlFor="input1" className="font-bold">Decrypt Data</Label>
+        <Label htmlFor="encrypt" className="font-bold">Decrypt Data</Label>
+        <ModeSelector method={method} setMethod={setMethod} />
         <Textarea
-          id="input2"
-          placeholder="Enter data to decrypt"
+          id="encrypt"
+          placeholder="Enter data to encrypt"
           value={inputText}
           onChange={(e) => setInputText(e.target.value)}
-          className="min-h-[100px]"
+          className="min-h-[100px] italic"
         />
-        <Button onClick={handleDecrypt} className="flex-1" disabled={method === "OTP" && !isOtpKeyValid1}>
+        <Button onClick={handleDecrypt1} className="flex-1 font-bold active:bg-zinc-900" disabled={!isKeyValid()}>
           Decrypt
         </Button>
       </div>
 
-      <div className="flex items-end gap-4">
-        <div className="flex-1">
-          <Label htmlFor="key2" className={cn(method === "OTP" && !isOtpKeyValid1 ? "text-destructive" : "")}>
-            Key {method === "OTP" && !isOtpKeyValid1 && "(must match input length)"}
+      <div className="flex w-full items-end gap-4">
+        <div className="flex-1 space-y-2">
+          <Label
+            htmlFor="key1"
+            className={cn(!isKeyValid() ? "text-destructive font-bold" : "font-bold")}
+          >
+            Key {!isKeyValid() && "(must be valid length)"}
           </Label>
           <Input
-            id="key2"
+            id="key1"
             placeholder="Enter key"
-            value={key2}
-            onChange={(e) => setKey2(e.target.value)}
-            className={cn(method === "OTP" && !isOtpKeyValid1 ? "border-destructive" : "")}
+            value={key}
+            onChange={(e) => setKey(e.target.value)}
+            className={cn(!isKeyValid() ? "border-destructive italic" : "italic")}
           />
         </div>
 
         {method === "AES" && (
-          <div className="w-1/3">
-            <Label htmlFor="aesMode1" className="inline-flex items-center justify-center px-4 py-2 border border-gray-300 rounded-lg shadow-sm cursor-pointer hover:bg-gray-50 transition-colors">Mode</Label>
+          <div className="w-[180px]">
             <Select value={aesMode} onValueChange={setAesMode}>
-              <SelectTrigger id="aesMode1">
-                <SelectValue placeholder="Select mode" />
+              <SelectTrigger className="w-full border border-gray-300 bg-white rounded-md px-3 py-2">
+                <SelectValue placeholder="Key length" />
               </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="CBC">CBC</SelectItem>
-                <SelectItem value="ECB">ECB</SelectItem>
-                <SelectItem value="CTR">CTR</SelectItem>
+              <SelectContent className="bg-white border border-gray-300 rounded-md shadow-lg">
+                <SelectItem value="128">128 bits</SelectItem>
+                <SelectItem value="192">192 bits</SelectItem>
+                <SelectItem value="256">256 bits</SelectItem>
               </SelectContent>
             </Select>
           </div>
         )}
       </div>
-      <OutputDisplay targetLable={output1} />
+      <OutputDisplay targetLable={output} />
     </div>
   )
 }

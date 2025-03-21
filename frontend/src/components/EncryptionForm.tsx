@@ -12,11 +12,14 @@ import {
 } from "@/components/ui/select";
 import { Button } from "./ui/button";
 import OutputDisplay from "./OutputDisplay";
+import ModeSelector from "./ModeSelector";
 
-export default function EncryptionForm({ method }: { method: string }) {
+type EncryptionMethod = "OTP" | "3DES" | "AES";
+export default function EncryptionForm() {
+  const [method, setMethod] = useState<EncryptionMethod>("OTP")
   const [inputText, setInputText] = useState("")
   const [key, setKey] = useState("")
-  const [output1, setOutput1] = useState("")
+  const [output, setOutput] = useState("")
   const isKeyValid = () => {
     if (method === "OTP") {
       return key.length === inputText.length;
@@ -30,12 +33,13 @@ export default function EncryptionForm({ method }: { method: string }) {
   };
   const [aesMode, setAesMode] = useState<string>("");
   const handleEncrypt1 = () => {
-    setOutput1(`Encrypted with ${method}${method === "AES" ? `-${aesMode}` : ""}: ${inputText}`)
+    setOutput(`Encrypted with ${method}${method === "AES" ? `-${aesMode}` : ""}: ${inputText}`)
   }
   return (
     <div className="space-y-4">
       <div className="grid w-full gap-2">
         <Label htmlFor="encrypt" className="font-bold">Encrypt Data</Label>
+        <ModeSelector method={method} setMethod={setMethod} />
         <Textarea
           id="encrypt"
           placeholder="Enter data to encrypt"
@@ -80,7 +84,7 @@ export default function EncryptionForm({ method }: { method: string }) {
           </div>
         )}
       </div>
-      <OutputDisplay targetLable={output1} />
+      <OutputDisplay targetLable={output} />
     </div>
   )
 }
