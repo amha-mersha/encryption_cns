@@ -3,7 +3,13 @@ import { Textarea } from "./ui/textarea";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 import { Input } from "./ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@radix-ui/react-select";
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from "@/components/ui/select";
 import { Button } from "./ui/button";
 import OutputDisplay from "./OutputDisplay";
 
@@ -22,7 +28,7 @@ export default function EncryptionForm({ method }: { method: string }) {
     }
     return false;
   };
-  const [aesMode, setAesMode] = useState("Key length");
+  const [aesMode, setAesMode] = useState<string>("");
   const handleEncrypt1 = () => {
     setOutput1(`Encrypted with ${method}${method === "AES" ? `-${aesMode}` : ""}: ${inputText}`)
   }
@@ -44,7 +50,10 @@ export default function EncryptionForm({ method }: { method: string }) {
 
       <div className="flex w-full items-end gap-4">
         <div className="flex-1 space-y-2">
-          <Label htmlFor="key1" className={cn(!isKeyValid() ? "text-destructive font-bold" : "font-bold")}>
+          <Label
+            htmlFor="key1"
+            className={cn(!isKeyValid() ? "text-destructive font-bold" : "font-bold")}
+          >
             Key {!isKeyValid() && "(must be valid length)"}
           </Label>
           <Input
@@ -57,12 +66,12 @@ export default function EncryptionForm({ method }: { method: string }) {
         </div>
 
         {method === "AES" && (
-          <div className="w-fit">
+          <div className="w-[180px]">
             <Select value={aesMode} onValueChange={setAesMode}>
-              <SelectTrigger>
+              <SelectTrigger className="w-full border border-gray-300 bg-white rounded-md px-3 py-2">
                 <SelectValue placeholder="Key length" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="bg-white border border-gray-300 rounded-md shadow-lg">
                 <SelectItem value="128">128 bits</SelectItem>
                 <SelectItem value="192">192 bits</SelectItem>
                 <SelectItem value="256">256 bits</SelectItem>
