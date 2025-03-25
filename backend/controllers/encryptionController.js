@@ -1,145 +1,120 @@
-const encryptionService = require("../services/encryptionService");
-const keyGenService = require("../services/keyGenService");
+const encryptionService = require('./encryptionService');
 
-module.exports = {
-  encryptData: (req, res) => {
-    const { algorithm, data, key } = req.body;
-
-    if (!key || !key.value || !key.length) {
-      return res
-        .status(400)
-        .json({ error: "Key object with value and length is required" });
-    }
-
-    let encryptionResult;
-
+class EncryptionController {
+  async encryptOTP(req, res) {
     try {
-      switch (algorithm) {
-        case "AES":
-          if (![128, 192, 256].includes(key.length)) {
-            return res
-              .status(400)
-              .json({ error: "AES key must be 128, 192, or 256 bits" });
-          }
-          const aesKey = Buffer.from(key.value, "hex");
-          if (
-            ![16, 24, 32].includes(aesKey.length) ||
-            aesKey.length * 8 !== key.length
-          ) {
-            return res.status(400).json({
-              error:
-                "AES key must be 16, 24, or 32 bytes when decoded from hex or there is a mistmach between the length provided and the actual length",
-            });
-          }
-          encryptionResult = encryptionService.encryptAES(data, aesKey);
-          break;
-        case "3DES":
-          if (key.length !== 192) {
-            return res.status(400).json({
-              error: "3DES key must be 192 bits (168 bits effective)",
-            });
-          }
-          const desKey = Buffer.from(key.value, "hex");
-          if (desKey.length !== 24 || desKey.length * 8 !== key.length) {
-            return res.status(400).json({
-              error:
-                "3DES key must be 24 bytes (192 bits) when decoded from hex or there is a mistmach between the length provided and the actual length",
-            });
-          }
-          encryptionResult = encryptionService.encrypt3DES(data, desKey);
-          break;
-        case "OTP":
-          if (key.length !== data.length * 8) {
-            return res
-              .status(400)
-              .json({ error: "OTP key length must match data length in bits" });
-          }
-          const otpKey = Buffer.from(key.value, "hex");
-          encryptionResult = encryptionService.encryptOTP(data, otpKey);
-          break;
-        default:
-          return res.status(400).json({ error: "Invalid algorithm" });
+      const { text, key } = req.body;
+      if (!text || !key) {
+        return res.status(400).json({ error: 'Text and key are required' });
       }
-      res.json({ encryptedData: encryptionResult });
-    } catch (err) {
-      res.status(500).json({ error: err.message });
+      
+      const encrypted = encryptionService.otpEncrypt(text, key);
+      res.json({ encrypted });
+    } catch (error) {
+      res.status(400).json({ error: error.message });
     }
-  },
+  }
 
-  decryptData: (req, res) => {
-    const { algorithm, data, key, iv } = req.body;
-
-    if (!key) {
-      return res.status(400).json({ error: "Key is required" });
-    }
-
-    let decryptedResult;
-
+  async decryptOTP(req, res) {
     try {
-      switch (algorithm) {
-        case "AES":
-          const aesKey = Buffer.from(key, "hex");
-          decryptedResult = encryptionService.decryptAES(data, aesKey, iv);
-          break;
-        case "3DES":
-          const desKey = Buffer.from(key, "hex");
-          decryptedResult = encryptionService.decrypt3DES(data, desKey, iv);
-          break;
-        case "OTP":
-          const otpKey = Buffer.from(key, "hex");
-          decryptedResult = encryptionService.decryptOTP(data, otpKey);
-          break;
-        default:
-          return res.status(400).json({ error: "Invalid algorithm" });
+      const { encryptedText, key } = req.body;
+      if (!encryptedText || !key) {
+        return res.status(400).json({ error: 'Encrypted text and key are required' });
       }
-      res.json({ decryptedData: decryptedResult });
-    } catch (err) {
-      res.status(500).json({ error: err.message });
+      
+      const decrypted = encryptionService.otpDecrypt(encryptedText, key);
+      res.json({ decrypted });
+    } catch (error) {
+      res.status(400).json({ error: error.message });
     }
-  },
+  }
 
-  generateKey: (req, res) => {
-    const { algorithm, length } = req.body;
-
-    let generatedKey;
-
+  async encrypt3DES(req, res) {
     try {
-      switch (algorithm) {
-        case "AES":
-          if (length && ![128, 192, 256].includes(length)) {
-            return res
-              .status(400)
-              .json({ error: "AES key length must be 128, 192, or 256 bits" });
-          }
-          generatedKey = keyGenService.generateAESKey(length || 256);
-          break;
-
-        case "3DES":
-          if (length && length !== 192) {
-            return res
-              .status(400)
-              .json({ error: "3DES key length must be 192 bits" });
-          }
-          generatedKey = keyGenService.generate3DESKey();
-          break;
-
-        case "OTP":
-          if (!length || isNaN(length) || length <= 0) {
-            return res
-              .status(400)
-              .json({ error: "OTP key length must be a positive number" });
-          }
-          generatedKey = keyGenService.generateOTPKey(Math.ceil(length / 8));
-          break;
-
-        default:
-          return res
-            .status(400)
-            .json({ error: "Invalid algorithm for key generation" });
+      const { text, key } = req.body;
+      if (!text || !key) {
+        return res.status(400).json({ error: 'Text and key are required' });
       }
-      res.json({ generatedKey: generatedKey.toString("hex") });
-    } catch (err) {
-      res.status(500).json({ error: err.message });
+      
+      const result = encryptionService.tripleDesEncrypt(text, key);
+      res.json(result);
+    } catch (error) {
+      res.status(400).json({ error: error.message });
     }
-  },
-};
+  }
+
+  async decrypt3DES(req, res) {
+    try {
+      const { encryptedData, key, iv } = req.body;
+      if (!encryptedData || !key || !iv) {
+        return res.status(400).json({ error: 'Encrypted data, key and IV are required' });
+      }
+      
+      const decrypted = encryptionService.tripleDesDecrypt(encryptedData, key, iv);
+      res.json({ decrypted });
+    } catch (error) {
+      res.status(400).json({ error: error.message });
+    }
+  }
+
+  async encryptAES(req, res) {
+    try {
+      const { text, key, algorithm } = req.body;
+      if (!text || !key) {
+        return res.status(400).json({ error: 'Text and key are required' });
+      }
+      
+      const result = encryptionService.aesEncrypt(text, key, algorithm);
+      res.json(result);
+    } catch (error) {
+      res.status(400).json({ error: error.message });
+    }
+  }
+
+  async decryptAES(req, res) {
+    try {
+      const { encryptedData, key, iv, algorithm } = req.body;
+      if (!encryptedData || !key || !iv) {
+        return res.status(400).json({ error: 'Encrypted data, key and IV are required' });
+      }
+      
+      const decrypted = encryptionService.aesDecrypt(encryptedData, key, iv, algorithm);
+      res.json({ decrypted });
+    } catch (error) {
+      res.status(400).json({ error: error.message });
+    }
+  }
+
+  async generateKey(req, res) {
+    try {
+      const { algorithm, length } = req.query;
+      let keyLength;
+      
+      if (algorithm) {
+        const algorithmMap = {
+          'otp': length ? parseInt(length) : 32,
+          '3des': 24,
+          'aes-128': 16,
+          'aes-192': 24,
+          'aes-256': 32
+        };
+        
+        keyLength = algorithmMap[algorithm.toLowerCase()];
+        if (!keyLength) {
+          return res.status(400).json({ error: 'Invalid algorithm specified' });
+        }
+      } else if (length) {
+        keyLength = parseInt(length);
+      } else {
+        keyLength = 32; // default
+      }
+      
+      const key = encryptionService.generateKey(keyLength);
+      res.json({ key });
+    } catch (error) {
+      res.status(400).json({ error: error.message });
+    }
+  }
+}
+
+module.exports = new EncryptionController();

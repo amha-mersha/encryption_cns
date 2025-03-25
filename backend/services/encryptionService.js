@@ -1,95 +1,121 @@
-const crypto = require("crypto");
+const crypto = require('crypto');
 
-module.exports = {
-  encryptAES: (data, key) => {
-    let aesMode;
-    switch (key.length * 8) {
-      case 128:
-        aesMode = "aes-128-cbc";
-        break;
-      case 192:
-        aesMode = "aes-192-cbc";
-        break;
-      case 256:
-        aesMode = "aes-256-cbc";
-        break;
-      default:
-        throw new Error("Invalid AES key length");
+class EncryptionService {
+  // OTP (One-Time Pad) Encryption
+  otpEncrypt(text, key) {
+    if (key.length !== text.length) {
+      throw new Error('Key length must match text length for OTP');
     }
+    
+    let result = '';
+    for (let i = 0; i < text.length; i++) {
+      const charCode = text.charCodeAt(i) ^ key.charCodeAt(i);
+      result += String.fromCharCode(charCode);
+    }
+    
+    return Buffer.from(result).toString('base64');
+  }
 
+  otpDecrypt(encryptedText, key) {
+    const text = Buffer.from(encryptedText, 'base64').toString('binary');
+    
+    if (key.length !== text.length) {
+      throw new Error('Key length must match encrypted text length for OTP');
+    }
+    
+    let result = '';
+    for (let i = 0; i < text.length; i++) {
+      const charCode = text.charCodeAt(i) ^ key.charCodeAt(i);
+      result += String.fromCharCode(charCode);
+    }
+    
+    return result;
+  }
+
+  // 3DES Encryption
+  tripleDesEncrypt(text, key) {
+    if (key.length !== 24) {
+      throw new Error('3DES requires a 24-byte key');
+    }
+    
+    const iv = crypto.randomBytes(8);
+    const cipher = crypto.createCipheriv('des-ede3-cbc', Buffer.from(key), iv);
+    let encrypted = cipher.update(text, 'utf8', 'base64');
+    encrypted += cipher.final('base64');
+    
+    return {
+      iv: iv.toString('base64'),
+      encryptedData: encrypted
+    };
+  }
+
+  tripleDesDecrypt(encryptedData, key, iv) {
+    if (key.length !== 24) {
+      throw new Error('3DES requires a 24-byte key');
+    }
+    
+    const decipher = crypto.createDecipheriv(
+      'des-ede3-cbc', 
+      Buffer.from(key), 
+      Buffer.from(iv, 'base64')
+    );
+    let decrypted = decipher.update(encryptedData, 'base64', 'utf8');
+    decrypted += decipher.final('utf8');
+    
+    return decrypted;
+  }
+
+  // AES Encryption
+  aesEncrypt(text, key, algorithm = 'aes-256-cbc') {
+    const validKeyLengths = {
+      'aes-128-cbc': 16,
+      'aes-192-cbc': 24,
+      'aes-256-cbc': 32
+    };
+    
+    const requiredKeyLength = validKeyLengths[algorithm];
+    if (!requiredKeyLength || key.length !== requiredKeyLength) {
+      throw new Error(`Key must be ${requiredKeyLength} bytes for ${algorithm}`);
+    }
+    
     const iv = crypto.randomBytes(16);
-    const cipher = crypto.createCipheriv(aesMode, key, iv);
-    let encrypted = cipher.update(data, "utf8", "hex");
-    encrypted += cipher.final("hex");
-    return { iv: iv.toString("hex"), encryptedData: encrypted };
-  },
+    const cipher = crypto.createCipheriv(algorithm, Buffer.from(key), iv);
+    let encrypted = cipher.update(text, 'utf8', 'base64');
+    encrypted += cipher.final('base64');
+    
+    return {
+      iv: iv.toString('base64'),
+      encryptedData: encrypted
+    };
+  }
 
-  decryptAES: (data, key, iv) => {
-    let aesMode;
-    switch (key.length * 8) {
-      case 128:
-        aesMode = "aes-128-cbc";
-        break;
-      case 192:
-        aesMode = "aes-192-cbc";
-        break;
-      case 256:
-        aesMode = "aes-256-cbc";
-        break;
-      default:
-        throw new Error("Invalid AES key length");
+  aesDecrypt(encryptedData, key, iv, algorithm = 'aes-256-cbc') {
+    const validKeyLengths = {
+      'aes-128-cbc': 16,
+      'aes-192-cbc': 24,
+      'aes-256-cbc': 32
+    };
+    
+    const requiredKeyLength = validKeyLengths[algorithm];
+    if (!requiredKeyLength || key.length !== requiredKeyLength) {
+      throw new Error(`Key must be ${requiredKeyLength} bytes for ${algorithm}`);
     }
-
+    
     const decipher = crypto.createDecipheriv(
-      aesMode,
-      key,
-      Buffer.from(iv, "hex"),
+      algorithm, 
+      Buffer.from(key), 
+      Buffer.from(iv, 'base64')
     );
-    let decrypted = decipher.update(data, "hex", "utf8");
-    decrypted += decipher.final("utf8");
+    let decrypted = decipher.update(encryptedData, 'base64', 'utf8');
+    decrypted += decipher.final('utf8');
+    
     return decrypted;
-  },
+  }
 
-  encrypt3DES: (data, key) => {
-    if (key.length !== 24) {
-      throw new Error("3DES key must be 24 bytes (192 bits)");
-    }
+  // Helper method to generate random keys
+  generateKey(length) {
+    return crypto.randomBytes(length).toString('hex').slice(0, length);
+  }
+}
 
-    const iv = crypto.randomBytes(8); // 3DES block size is 8 bytes
-    const cipher = crypto.createCipheriv("des-ede3-cbc", key, iv);
-    let encrypted = cipher.update(data, "utf8", "hex");
-    encrypted += cipher.final("hex");
-    return { iv: iv.toString("hex"), encryptedData: encrypted };
-  },
-
-  decrypt3DES: (data, key, iv) => {
-    if (key.length !== 24) {
-      throw new Error("3DES key must be 24 bytes (192 bits)");
-    }
-
-    const decipher = crypto.createDecipheriv(
-      "des-ede3-cbc",
-      key,
-      Buffer.from(iv, "hex"),
-    );
-    let decrypted = decipher.update(data, "hex", "utf8");
-    decrypted += decipher.final("utf8");
-    return decrypted;
-  },
-
-  encryptOTP: (data, key) => {
-    if (key.length !== data.length) {
-      throw new Error("OTP key length must match data length in bytes");
-    }
-
-    let encrypted = "";
-    for (let i = 0; i < data.length; i++) {
-      encrypted += String.fromCharCode(data.charCodeAt(i) ^ key[i]);
-    }
-    return encrypted;
-  },
-
-  decryptOTP: (data, key) => {
-    return this.encryptOTP(data, key);
-  },
-};
+module.exports = new EncryptionService();

@@ -1,17 +1,26 @@
 const express = require("express");
 const bodyParser = require("body-parser");
-const encryptionRoutes = require("./routes/encryptionRoutes");
-const dotenv = require("dotenv");
-
-dotenv.config();
+const cors = require("cors");
+const encryptionRouter = require("./encryptionRouter");
 
 const app = express();
 
-const port = process.env.PORT || 3000;
-
+// Middleware
+app.use(cors());
 app.use(bodyParser.json());
-app.use("/api/encrypt", encryptionRoutes);
+app.use(bodyParser.urlencoded({ extended: true }));
 
-app.listen(port, () => {
-  console.log(`Server running on port ${port}`);
+// Routes
+app.use("/api/encryption", encryptionRouter);
+
+// Error handling
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).json({ error: "Something went wrong!" });
+});
+
+// Start server
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`Encryption service running on port ${PORT}`);
 });
