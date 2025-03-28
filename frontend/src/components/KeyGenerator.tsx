@@ -13,14 +13,14 @@ import OutputDisplay from "./OutputDisplay";
 export default function KeyGenerator({ lengthOTP }: { lengthOTP: number }) {
   const [keyType, setKeyType] = useState<string>(""); // Selected key type
   const [output, setOutput] = useState<string>(""); // Generated key or error message
-  const [error, setError] = useState<string | null>(null); // Error state
+  const [error, setError] = useState<string>(""); // Error state
   const [isLoading, setIsLoading] = useState<boolean>(false); // Loading state
 
   const handleKeyGenerate = async () => {
     if (!keyType) return; // Ensure a key type is selected
 
     setIsLoading(true);
-    setError(null); // Reset error state
+    setError(""); // Reset error state
     try {
       let length: number;
       let algo: string;
@@ -28,12 +28,12 @@ export default function KeyGenerator({ lengthOTP }: { lengthOTP: number }) {
       // Calculate length based on the selected algorithm
       switch (keyType) {
         case "OTP":
-          length = lengthOTP
-          algo = keyType
+          length = lengthOTP;
+          algo = keyType;
           break;
         case "3DES":
           length = 192; // Example: 3DES keys are 24 bytes
-          algo = keyType
+          algo = keyType;
           break;
         case "AES-128":
           length = 128; // AES-128 uses 16-byte keys
@@ -53,7 +53,7 @@ export default function KeyGenerator({ lengthOTP }: { lengthOTP: number }) {
 
       const key = await generateKey(algo, length);
       setOutput(key);
-      setError(null);
+      setError("");
     } catch (err) {
       setError(err instanceof Error ? err.message : "An error occurred");
       setOutput("");

@@ -1,21 +1,21 @@
 import { Dispatch, SetStateAction } from "react";
 import { Button } from "./ui/button";
 
-type EncryptionMethod = "OTP" | "3DES" | "AES";
+type EncryptionAlgorithm = "OTP" | "3DES" | "AES192" | "AES256" | "AES128";
 type ModeSelectorProps = {
-  method: EncryptionMethod;
-  setMethod: Dispatch<SetStateAction<EncryptionMethod>>;
+  method: EncryptionAlgorithm;
+  setMethod: Dispatch<SetStateAction<EncryptionAlgorithm>>;
 };
 
 export default function ModeSelector({ method, setMethod }: ModeSelectorProps) {
   return (
-    <div className="flex justify-center space-x-4 mb-6">
-      {(["OTP", "3DES", "AES"] as const).map((m) => (
+    <div className="flex flex-wrap justify-start gap-4 mb-6">
+      {(["OTP", "3DES", "AES128", "AES192", "AES256"] as const).map((m) => (
         <Button
           key={m}
           variant={method === m ? "default" : "outline"}
           onClick={() => setMethod(m)}
-          className="w-24"
+          className="min-w-[80px] px-4 py-2"
         >
           {m}
         </Button>
@@ -23,4 +23,3 @@ export default function ModeSelector({ method, setMethod }: ModeSelectorProps) {
     </div>
   );
 };
-

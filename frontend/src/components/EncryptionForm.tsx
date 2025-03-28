@@ -3,22 +3,15 @@ import { Textarea } from "./ui/textarea";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 import { Input } from "./ui/input";
-import {
-  Select,
-  SelectTrigger,
-  SelectValue,
-  SelectContent,
-  SelectItem,
-} from "@/components/ui/select";
 import { Button } from "./ui/button";
 import ModeSelector from "./ModeSelector";
-import { encryptData } from "@/utils/api";
 import KeyGenerator from "./KeyGenerator";
 import { Dispatch, SetStateAction } from "react";
+import { aesEncrypt, otpEncrypt, tripleDesEncrypt } from "@/utils/api";
 
-type EncryptionMethod = "OTP" | "3DES" | "AES";
+type EncryptionAlgorithm = "OTP" | "3DES" | "AES192" | "AES256" | "AES128";
 export default function EncryptionForm({ updateOutput }: { updateOutput: Dispatch<SetStateAction<string>> }) {
-  const [algorithm, setAlgorithm] = useState<EncryptionMethod>("OTP");
+  const [algorithm, setAlgorithm] = useState<EncryptionAlgorithm>("OTP");
   const [data, setData] = useState<string>("");
   const [key, setKey] = useState("")
   const isKeyValid = () => {
@@ -26,31 +19,44 @@ export default function EncryptionForm({ updateOutput }: { updateOutput: Dispatc
       return key.length === data.length;
     } else if (algorithm === "3DES") {
       return key.length === 24;
-    } else if (algorithm === "AES") {
-      const requiredLength = parseInt(aesMode, 10) / 8;
-      return key.length === requiredLength;
+    } else if (algorithm === "AES192") {
+      return key.length === 24;
+    } else if (algorithm === "AES128") {
+      return key.length === 16;
+    } else if (algorithm === "AES256") {
+      return key.length === 32;
     }
     return false;
   };
-  const [aesMode, setAesMode] = useState<string>("");
 
   const handleEncrypt = async () => {
-    let keyLength = key.length;
-    switch (algorithm) {
-      case "OTP":
-        keyLength = key.length;
-        break;
-      case "3DES":
-        keyLength = 192;
-        break;
-      case "OTP":
-        keyLength = parseInt(aesMode, 10);
-    }
     try {
-      const result = await encryptData(algorithm, data, key, keyLength);
-      updateOutput(`Encrypted Data: ${result.encryptedData} \n IV: ${result.iv}`)
+      switch (algorithm) {
+        case "OTP":
+          const otpResult = await otpEncrypt(data, key);
+          updateOutput(otpResult);
+          break;
+        case "3DES":
+          const tripleDesResult = await tripleDesEncrypt(data, key);
+          updateOutput(JSON.stringify(tripleDesResult));
+          break;
+        case "AES192":
+          const aes192Result = await aesEncrypt(data, key, 'aes-192-cbc');
+          updateOutput(JSON.stringify(aes192Result));
+          break;
+        case "AES128":
+          const aes128Result = await aesEncrypt(data, key, 'aes-128-cbc');
+          updateOutput(JSON.stringify(aes128Result));
+          break;
+        case "AES256":
+          const aes256Result = await aesEncrypt(data, key, 'aes-256-cbc');
+          updateOutput(JSON.stringify(aes256Result));
+          break;
+        default:
+          break;
+      }
     } catch (err) {
-      updateOutput(err instanceof Error ? "Error: " + err.message : "Error: An error has occured")
+      updateOutput(err instanceof Error ? err.message : "An error occured at `handleEncrypt`")
     }
   };
   return (
@@ -86,21 +92,6 @@ export default function EncryptionForm({ updateOutput }: { updateOutput: Dispatc
             className={cn(!isKeyValid() ? "border-destructive italic" : "italic")}
           />
         </div>
-
-        {algorithm === "AES" && (
-          <div className="w-[120px]">
-            <Select value={aesMode} onValueChange={setAesMode}>
-              <SelectTrigger className="w-full border border-gray-300 bg-white rounded-md px-3 py-2">
-                <SelectValue placeholder="Key length" />
-              </SelectTrigger>
-              <SelectContent className="bg-white border border-gray-300 rounded-md shadow-lg">
-                <SelectItem value="128">128 bits</SelectItem>
-                <SelectItem value="192">192 bits</SelectItem>
-                <SelectItem value="256">256 bits</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-        )}
       </div>
       <KeyGenerator lengthOTP={data.length} />
     </div>
