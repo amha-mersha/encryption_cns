@@ -7,6 +7,7 @@ import ModeSelector from "./ModeSelector";
 import { aesDecrypt, otpDecrypt, tripleDesDecrypt } from "@/utils/api";
 import KeyGenerator from "./KeyGenerator";
 import { Dispatch, SetStateAction } from "react";
+import { cn } from "@/lib/utils";
 
 type DecryptionMethod = "OTP" | "3DES" | "AES192" | "AES256" | "AES128";
 export default function DecryptionForm({ updateOutput }: { updateOutput: Dispatch<SetStateAction<string>> }) {
@@ -14,30 +15,25 @@ export default function DecryptionForm({ updateOutput }: { updateOutput: Dispatc
   const [data, setData] = useState<string>("");
   const [key, setKey] = useState("")
   const [iv, setIv] = useState("")
-  //const isKeyValid = () => {
-  //  if (algorithm === "OTP") {
-  //    return key.length === data.length;
-  //  } else if (algorithm === "3DES") {
-  //    return key.length === 24;
-  //  } else if (algorithm === "AES192") {
-  //    return key.length === 24;
-  //  } else if (algorithm === "AES128") {
-  //    return key.length === 16;
-  //  } else if (algorithm === "AES256") {
-  //    return key.length === 32;
-  //  }
-  //  return false;
-  //  // comment 
-  //  if (algorithm === "OTP") {
-  //    return key.length === data.length;
-  //  } else if (algorithm === "3DES") {
-  //    return key.length === 24;
-  //  } else if (algorithm === "AES") {
-  //    const requiredLength = parseInt(aesMode, 10) / 8;
-  //    return key.length === requiredLength;
-  //  }
-  //  return false;
-  //};
+  const isKeyValid = () => {
+    if (algorithm === "OTP") {
+      try {
+        const decodedData = atob(data);
+        return key.length === decodedData.length;
+      } catch (error) {
+        return false
+      }
+    } else if (algorithm === "3DES") {
+      return key.length === 24;
+    } else if (algorithm === "AES192") {
+      return key.length === 24;
+    } else if (algorithm === "AES128") {
+      return key.length === 16;
+    } else if (algorithm === "AES256") {
+      return key.length === 32;
+    }
+    return false;
+  };
   //const [aesMode, setAesMode] = useState<string>("");
 
   const handleDecrypt = async () => {
@@ -52,15 +48,15 @@ export default function DecryptionForm({ updateOutput }: { updateOutput: Dispatc
           updateOutput(JSON.stringify(tripleDesResult));
           break;
         case "AES192":
-          const aes192Result = await aesDecrypt(data, key, iv);
+          const aes192Result = await aesDecrypt(data, key, iv, 'aes-192-cbc');
           updateOutput(JSON.stringify(aes192Result));
           break;
         case "AES128":
-          const aes128Result = await aesDecrypt(data, key, iv);
+          const aes128Result = await aesDecrypt(data, key, iv, 'aes-128-cbc');
           updateOutput(JSON.stringify(aes128Result));
           break;
         case "AES256":
-          const aes256Result = await aesDecrypt(data, key, iv);
+          const aes256Result = await aesDecrypt(data, key, iv, 'aes-256-cbc');
           updateOutput(JSON.stringify(aes256Result));
           break;
         default:
@@ -91,16 +87,16 @@ export default function DecryptionForm({ updateOutput }: { updateOutput: Dispatc
         <div className="flex-1 space-y-2">
           <Label
             htmlFor="key1"
-          //className={cn(!isKeyValid() ? "text-destructive font-bold" : "font-bold")}
+            className={cn(!isKeyValid() ? "text-destructive font-bold" : "font-bold")}
           >
-            Key {/*!isKeyValid() && "(must be valid length)"*/}
+            Key {!isKeyValid() && "(must be valid length)"}
           </Label>
           <Input
             id="key1"
             placeholder="Enter key"
             value={key}
             onChange={(e) => setKey(e.target.value)}
-          //className={cn(!isKeyValid() ? "border-destructive italic" : "italic")}
+            className={cn(!isKeyValid() ? "border-destructive italic" : "italic")}
           />
         </div>
 
