@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const encryptionController = require("./encryptionController");
+const encryptionController = require("../controllers/encryptionController");
 
 // OTP routes
 router.post("/otp/encrypt", encryptionController.encryptOTP);

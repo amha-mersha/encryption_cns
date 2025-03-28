@@ -1,81 +1,271 @@
 {
   "info": {
-    "_postman_id": "your-collection-id",
-    "name": "Encryption API Tests",
+    "_postman_id": "a1b2c3d4-e5f6-7890-f1g2-h3i4j5k6l7m8",
+    "name": "Encryption Service API Tests",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "item": [
     {
-      "name": "Generate Key",
-      "request": {
-        "method": "POST",
-        "header": [],
-        "body": {
-          "mode": "raw",
-          "raw": "{\n  \"algorithm\": \"AES\",\n  \"length\": 128\n}",
-          "options": {
-            "raw": {
-              "language": "json"
+      "name": "Key Generation",
+      "item": [
+        {
+          "name": "Generate OTP Key",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:3000/api/encryption/key/generate?algorithm=otp&length=32",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3000",
+              "path": ["api", "encryption", "key", "generate"],
+              "query": [
+                {
+                  "key": "algorithm",
+                  "value": "otp"
+                },
+                {
+                  "key": "length",
+                  "value": "32"
+                }
+              ]
             }
-          }
+          },
+          "response": []
         },
-        "url": {
-          "raw": "http://localhost:3000/api/encrypt/generate-key",
-          "protocol": "http",
-          "host": ["localhost"],
-          "port": "3000",
-          "path": ["api", "encrypt", "generate-key"]
+        {
+          "name": "Generate 3DES Key",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:3000/api/encryption/key/generate?algorithm=3des",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3000",
+              "path": ["api", "encryption", "key", "generate"],
+              "query": [
+                {
+                  "key": "algorithm",
+                  "value": "3des"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Generate AES-256 Key",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:3000/api/encryption/key/generate?algorithm=aes-256",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3000",
+              "path": ["api", "encryption", "key", "generate"],
+              "query": [
+                {
+                  "key": "algorithm",
+                  "value": "aes-256"
+                }
+              ]
+            }
+          },
+          "response": []
         }
-      },
-      "response": []
+      ]
     },
     {
-      "name": "Encrypt Data",
-      "request": {
-        "method": "POST",
-        "header": [],
-        "body": {
-          "mode": "raw",
-          "raw": "{\n  \"algorithm\": \"AES\",\n  \"data\": \"Hello, World!\",\n  \"key\": {\n    \"value\": \"2b7e151628aed2a6abf7158809cf4f3c\",\n    \"length\": 128\n  }\n}",
-          "options": {
-            "raw": {
-              "language": "json"
+      "name": "OTP Encryption",
+      "item": [
+        {
+          "name": "Encrypt with OTP",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"text\": \"This is a secret message\",\n    \"key\": \"abcdefghijklmnopqrstuvwxyz123456\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:3000/api/encryption/otp/encrypt",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3000",
+              "path": ["api", "encryption", "otp", "encrypt"]
             }
-          }
+          },
+          "response": []
         },
-        "url": {
-          "raw": "http://localhost:3000/api/encrypt/encrypt",
-          "protocol": "http",
-          "host": ["localhost"],
-          "port": "3000",
-          "path": ["api", "encrypt", "encrypt"]
+        {
+          "name": "Decrypt with OTP",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"encryptedText\": \"HxgJEAwXBA0bFQwLDRwVDQ0XGAk=\",\n    \"key\": \"abcdefghijklmnopqrstuvwxyz123456\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:3000/api/encryption/otp/decrypt",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3000",
+              "path": ["api", "encryption", "otp", "decrypt"]
+            }
+          },
+          "response": []
         }
-      },
-      "response": []
+      ]
     },
     {
-      "name": "Decrypt Data",
-      "request": {
-        "method": "POST",
-        "header": [],
-        "body": {
-          "mode": "raw",
-          "raw": "{\n  \"algorithm\": \"AES\",\n  \"data\": \"encrypted-data-here\",\n  \"key\": {\n    \"value\": \"2b7e151628aed2a6abf7158809cf4f3c\",\n    \"length\": 128\n  },\n  \"iv\": \"iv-value-here\"\n}",
-          "options": {
-            "raw": {
-              "language": "json"
+      "name": "3DES Encryption",
+      "item": [
+        {
+          "name": "Encrypt with 3DES",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"text\": \"This is a secret message\",\n    \"key\": \"1234567890abcdef1234567890abcdef1234567890abcdef\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:3000/api/encryption/3des/encrypt",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3000",
+              "path": ["api", "encryption", "3des", "encrypt"]
             }
-          }
+          },
+          "response": []
         },
-        "url": {
-          "raw": "http://localhost:3000/api/encrypt/decrypt",
-          "protocol": "http",
-          "host": ["localhost"],
-          "port": "3000",
-          "path": ["api", "encrypt", "decrypt"]
+        {
+          "name": "Decrypt with 3DES",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"encryptedData\": \"5Xpz9v4k3WJx2q7G8nYtFw==\",\n    \"key\": \"1234567890abcdef1234567890abcdef1234567890abcdef\",\n    \"iv\": \"dGVzdGl2\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:3000/api/encryption/3des/decrypt",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3000",
+              "path": ["api", "encryption", "3des", "decrypt"]
+            }
+          },
+          "response": []
         }
-      },
-      "response": []
+      ]
+    },
+    {
+      "name": "AES Encryption",
+      "item": [
+        {
+          "name": "Encrypt with AES-256",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"text\": \"This is a secret message\",\n    \"key\": \"1234567890abcdef1234567890abcdef\",\n    \"algorithm\": \"aes-256-cbc\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:3000/api/encryption/aes/encrypt",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3000",
+              "path": ["api", "encryption", "aes", "encrypt"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Decrypt with AES-256",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"encryptedData\": \"5Xpz9v4k3WJx2q7G8nYtFw==\",\n    \"key\": \"1234567890abcdef1234567890abcdef\",\n    \"iv\": \"dGVzdGl2\",\n    \"algorithm\": \"aes-256-cbc\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:3000/api/encryption/aes/decrypt",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3000",
+              "path": ["api", "encryption", "aes", "decrypt"]
+            }
+          },
+          "response": []
+        }
+      ]
     }
-  ]
+  ],
+  "protocolProfileBehavior": {}
 }

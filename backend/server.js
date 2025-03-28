@@ -1,7 +1,7 @@
 const express = require("express");
 const bodyParser = require("body-parser");
 const cors = require("cors");
-const encryptionRouter = require("./encryptionRouter");
+const encryptionRouter = require("./routes/encryptionRoute");
 
 const app = express();
 
@@ -14,10 +14,10 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use("/api/encryption", encryptionRouter);
 
 // Error handling
-app.use((err, req, res, next) => {
-  console.error(err.stack);
-  res.status(500).json({ error: "Something went wrong!" });
-});
+//app.use((err, req, res, next) => {
+//  console.error(err.stack);
+//  res.status(500).json({ error: "Something went wrong!" });
+//});
 
 // Start server
 const PORT = process.env.PORT || 3000;

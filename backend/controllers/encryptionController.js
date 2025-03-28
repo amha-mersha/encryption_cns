@@ -1,4 +1,4 @@
-const encryptionService = require('./encryptionService');
+const encryptionService = require('../services/encryptionService');
 
 class EncryptionController {
   async encryptOTP(req, res) {
