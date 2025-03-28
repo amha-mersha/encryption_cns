@@ -38,19 +38,39 @@ export default function EncryptionForm({ updateOutput }: { updateOutput: Dispatc
           break;
         case "3DES":
           const tripleDesResult = await tripleDesEncrypt(data, key);
-          updateOutput(JSON.stringify(tripleDesResult));
+          updateOutput(
+            tripleDesResult ?
+              Object.entries(tripleDesResult)
+                .map(([key, value]) => `${key}: ${value}`)
+                .join("\n") : "No data available"
+          );
           break;
         case "AES192":
           const aes192Result = await aesEncrypt(data, key, 'aes-192-cbc');
-          updateOutput(JSON.stringify(aes192Result));
+          updateOutput(
+            aes192Result ?
+              Object.entries(aes192Result)
+                .map(([key, value]) => `${key}: ${value}`)
+                .join("\n") : "No data available"
+          );
           break;
         case "AES128":
           const aes128Result = await aesEncrypt(data, key, 'aes-128-cbc');
-          updateOutput(JSON.stringify(aes128Result));
+          updateOutput(
+            aes128Result ?
+              Object.entries(aes128Result)
+                .map(([key, value]) => `${key}: ${value}`)
+                .join("\n") : "No data available"
+          );
           break;
         case "AES256":
           const aes256Result = await aesEncrypt(data, key, 'aes-256-cbc');
-          updateOutput(JSON.stringify(aes256Result));
+          updateOutput(
+            aes256Result ?
+              Object.entries(aes256Result)
+                .map(([key, value]) => `${key}: ${value}`)
+                .join("\n") : "No data available"
+          );
           break;
         default:
           break;

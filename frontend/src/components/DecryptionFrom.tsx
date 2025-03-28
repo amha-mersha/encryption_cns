@@ -44,19 +44,19 @@ export default function DecryptionForm({ updateOutput }: { updateOutput: Dispatc
           break;
         case "3DES":
           const tripleDesResult = await tripleDesDecrypt(data, key, iv);
-          updateOutput(JSON.stringify(tripleDesResult));
+          updateOutput(tripleDesResult);
           break;
         case "AES192":
           const aes192Result = await aesDecrypt(data, key, iv, 'aes-192-cbc');
-          updateOutput(JSON.stringify(aes192Result));
+          updateOutput(aes192Result);
           break;
         case "AES128":
           const aes128Result = await aesDecrypt(data, key, iv, 'aes-128-cbc');
-          updateOutput(JSON.stringify(aes128Result));
+          updateOutput(aes128Result);
           break;
         case "AES256":
           const aes256Result = await aesDecrypt(data, key, iv, 'aes-256-cbc');
-          updateOutput(JSON.stringify(aes256Result));
+          updateOutput(aes256Result);
           break;
         default:
           break;
