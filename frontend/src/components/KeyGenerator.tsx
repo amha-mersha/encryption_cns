@@ -13,50 +13,40 @@ import OutputDisplay from "./OutputDisplay";
 export default function KeyGenerator({ lengthOTP }: { lengthOTP: number }) {
   const [keyType, setKeyType] = useState<string>(""); // Selected key type
   const [output, setOutput] = useState<string>(""); // Generated key or error message
-  const [error, setError] = useState<string>(""); // Error state
   const [isLoading, setIsLoading] = useState<boolean>(false); // Loading state
 
   const handleKeyGenerate = async () => {
     if (!keyType) return; // Ensure a key type is selected
 
     setIsLoading(true);
-    setError(""); // Reset error state
     try {
       let length: number;
-      let algo: string;
 
       // Calculate length based on the selected algorithm
       switch (keyType) {
         case "OTP":
           length = lengthOTP;
-          algo = keyType;
           break;
         case "3DES":
           length = 192; // Example: 3DES keys are 24 bytes
-          algo = keyType;
           break;
         case "AES-128":
           length = 128; // AES-128 uses 16-byte keys
-          algo = keyType.slice(0, 3);
           break;
         case "AES-192":
           length = 192; // AES-192 uses 24-byte keys
-          algo = keyType.slice(0, 3);
           break;
         case "AES-256":
           length = 256; // AES-256 uses 32-byte keys
-          algo = keyType.slice(0, 3);
           break;
         default:
           throw new Error("Invalid algorithm selected");
       }
 
-      const key = await generateKey(algo, length);
+      const key = await generateKey(keyType, length);
       setOutput(key);
-      setError("");
     } catch (err) {
-      setError(err instanceof Error ? err.message : "An error occurred");
-      setOutput("");
+      setOutput(err instanceof Error ? err.message : "An error occurred");
     } finally {
       setIsLoading(false);
     }
@@ -90,7 +80,7 @@ export default function KeyGenerator({ lengthOTP }: { lengthOTP: number }) {
         </Button>
       </div>
 
-      <OutputDisplay value={error !== "" ? "Error: " + error : output} />
+      <OutputDisplay value={output} />
     </div>
   );
 }

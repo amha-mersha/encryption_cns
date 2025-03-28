@@ -13,8 +13,8 @@ type DecryptionMethod = "OTP" | "3DES" | "AES192" | "AES256" | "AES128";
 export default function DecryptionForm({ updateOutput }: { updateOutput: Dispatch<SetStateAction<string>> }) {
   const [algorithm, setAlgorithm] = useState<DecryptionMethod>("OTP");
   const [data, setData] = useState<string>("");
-  const [key, setKey] = useState("")
-  const [iv, setIv] = useState("")
+  const [key, setKey] = useState<string>("")
+  const [iv, setIv] = useState<string>("")
   const isKeyValid = () => {
     if (algorithm === "OTP") {
       try {
@@ -34,7 +34,6 @@ export default function DecryptionForm({ updateOutput }: { updateOutput: Dispatc
     }
     return false;
   };
-  //const [aesMode, setAesMode] = useState<string>("");
 
   const handleDecrypt = async () => {
     try {
@@ -99,21 +98,6 @@ export default function DecryptionForm({ updateOutput }: { updateOutput: Dispatc
             className={cn(!isKeyValid() ? "border-destructive italic" : "italic")}
           />
         </div>
-
-        {/* algorithm === "AES" && (
-          <div className="w-[120px]">
-            <Select value={aesMode} onValueChange={setAesMode}>
-              <SelectTrigger className="w-full border border-gray-300 bg-white rounded-md px-3 py-2">
-                <SelectValue placeholder="Key length" />
-              </SelectTrigger>
-              <SelectContent className="bg-white border border-gray-300 rounded-md shadow-lg">
-                <SelectItem value="128">128 bits</SelectItem>
-                <SelectItem value="192">192 bits</SelectItem>
-                <SelectItem value="256">256 bits</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-        ) */}
       </div>
       {
         ["AES128", "AES192", "AES256", "3DES"].includes(algorithm) && (
@@ -128,7 +112,7 @@ export default function DecryptionForm({ updateOutput }: { updateOutput: Dispatc
               <Input
                 id="key2"
                 placeholder="Enter iv"
-                value={key}
+                value={iv}
                 onChange={(e) => setIv(e.target.value)}
                 className="italic"
               />
