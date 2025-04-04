@@ -7,9 +7,9 @@ import { Button } from "./ui/button";
 import ModeSelector from "./ModeSelector";
 import KeyGenerator from "./KeyGenerator";
 import { Dispatch, SetStateAction } from "react";
-import { aesEncrypt, otpEncrypt, tripleDesEncrypt } from "@/utils/api";
+import { aesEncrypt, otpEncrypt, rsaEncrypt, tripleDesEncrypt } from "@/utils/api";
 
-type EncryptionAlgorithm = "OTP" | "3DES" | "AES192" | "AES256" | "AES128";
+type EncryptionAlgorithm = "OTP" | "3DES" | "AES192" | "AES256" | "AES128" | "RSA";
 export default function EncryptionForm({ updateOutput }: { updateOutput: Dispatch<SetStateAction<string>> }) {
   const [algorithm, setAlgorithm] = useState<EncryptionAlgorithm>("OTP");
   const [data, setData] = useState<string>("");
@@ -25,6 +25,8 @@ export default function EncryptionForm({ updateOutput }: { updateOutput: Dispatc
       return key.length === 16;
     } else if (algorithm === "AES256") {
       return key.length === 32;
+    } else if (algorithm === "RSA") {
+      return true
     }
     return false;
   };
@@ -71,6 +73,12 @@ export default function EncryptionForm({ updateOutput }: { updateOutput: Dispatc
                 .map(([key, value]) => `${key}: ${value}`)
                 .join("\n") : "No data available"
           );
+          break;
+        case "RSA":
+          const rsaResult = await rsaEncrypt(data);
+          updateOutput(
+            rsaResult
+          )
           break;
         default:
           break;

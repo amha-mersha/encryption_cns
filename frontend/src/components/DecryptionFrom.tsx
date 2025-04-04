@@ -4,12 +4,12 @@ import { useState } from "react";
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
 import ModeSelector from "./ModeSelector";
-import { aesDecrypt, otpDecrypt, tripleDesDecrypt } from "@/utils/api";
+import { aesDecrypt, otpDecrypt, rsaDecrypt, tripleDesDecrypt } from "@/utils/api";
 import KeyGenerator from "./KeyGenerator";
 import { Dispatch, SetStateAction } from "react";
 import { cn } from "@/lib/utils";
 
-type DecryptionMethod = "OTP" | "3DES" | "AES192" | "AES256" | "AES128";
+type DecryptionMethod = "OTP" | "3DES" | "AES192" | "AES256" | "AES128" | "RSA";
 export default function DecryptionForm({ updateOutput }: { updateOutput: Dispatch<SetStateAction<string>> }) {
   const [algorithm, setAlgorithm] = useState<DecryptionMethod>("OTP");
   const [data, setData] = useState<string>("");
@@ -31,6 +31,8 @@ export default function DecryptionForm({ updateOutput }: { updateOutput: Dispatc
       return key.length === 16;
     } else if (algorithm === "AES256") {
       return key.length === 32;
+    } else if (algorithm === "RSA") {
+      return true
     }
     return false;
   };
@@ -57,6 +59,10 @@ export default function DecryptionForm({ updateOutput }: { updateOutput: Dispatc
         case "AES256":
           const aes256Result = await aesDecrypt(data, key, iv, 'aes-256-cbc');
           updateOutput(aes256Result);
+          break;
+        case "RSA":
+          const rsaResult = await rsaDecrypt(data);
+          updateOutput(rsaResult)
           break;
         default:
           break;

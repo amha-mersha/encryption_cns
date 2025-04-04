@@ -124,6 +124,29 @@ export const aesDecrypt = async (
   }
 };
 
+// RSA Encryption API
+export const rsaEncrypt = async (plaintext: string) => {
+  try {
+    const response = await api.post("/rsa/encrypt", {
+      plaintext,
+    });
+    return response.data.encrypted;
+  } catch (error) {
+    handleError(error);
+  }
+};
+
+export const rsaDecrypt = async (encrypted: string) => {
+  try {
+    const response = await api.post("/rsa/decrypt", {
+      encrypted,
+    });
+    return response.data.decrypted;
+  } catch (error) {
+    handleError(error);
+  }
+};
+
 // Utility functions
 export const validateKey = (algorithm: string, key: string): boolean => {
   switch (algorithm.toLowerCase()) {
