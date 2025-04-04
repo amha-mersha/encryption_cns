@@ -89,25 +89,26 @@ export default function DecryptionForm({ updateOutput }: { updateOutput: Dispatc
       </div>
 
       <div className="flex w-full items-end gap-4">
-        <div className="flex-1 space-y-2">
-          <Label
-            htmlFor="key1"
-            className={cn(!isKeyValid() ? "text-destructive font-bold" : "font-bold")}
-          >
-            Key {!isKeyValid() && "(must be valid length)"}
-          </Label>
-          <Input
-            id="key1"
-            placeholder="Enter key"
-            value={key}
-            onChange={(e) => setKey(e.target.value)}
-            className={cn(!isKeyValid() ? "border-destructive italic" : "italic")}
-          />
-        </div>
-      </div>
-      {
-        ["AES128", "AES192", "AES256", "3DES"].includes(algorithm) && (
-          <div className="flex w-full items-end gap-4">
+        {
+          ["AES128", "AES192", "AES256", "3DES", "OTP"].includes(algorithm) && (
+            <div className="flex-1 space-y-2">
+              <Label
+                htmlFor="key1"
+                className={cn(!isKeyValid() ? "text-destructive font-bold" : "font-bold")}
+              >
+                Key {!isKeyValid() && "(must be valid length)"}
+              </Label>
+              <Input
+                id="key1"
+                placeholder="Enter key"
+                value={key}
+                onChange={(e) => setKey(e.target.value)}
+                className={cn(!isKeyValid() ? "border-destructive italic" : "italic")}
+              />
+            </div>
+          )}
+        {
+          ["AES128", "AES192", "AES256", "3DES"].includes(algorithm) && (
             <div className="flex-1 space-y-2">
               <Label
                 htmlFor="key2"
@@ -123,10 +124,13 @@ export default function DecryptionForm({ updateOutput }: { updateOutput: Dispatc
                 className="italic"
               />
             </div>
-          </div>
-        )
+          )
+        }
+      </div>
+      {
+        ["AES128", "AES192", "AES256", "3DES", "OTP"].includes(algorithm) && (
+          <KeyGenerator lengthOTP={data.length} />)
       }
-      <KeyGenerator lengthOTP={data.length} />
     </div >
   )
 }

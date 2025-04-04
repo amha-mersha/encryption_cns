@@ -103,25 +103,29 @@ export default function EncryptionForm({ updateOutput }: { updateOutput: Dispatc
           Encrypt
         </Button>
       </div>
-
-      <div className="flex w-full items-end gap-4">
-        <div className="flex-1 space-y-2">
-          <Label
-            htmlFor="key1"
-            className={cn(!isKeyValid() ? "text-destructive font-bold" : "font-bold")}
-          >
-            Key {!isKeyValid() && "(must be valid length)"}
-          </Label>
-          <Input
-            id="key1"
-            placeholder="Enter key"
-            value={key}
-            onChange={(e) => setKey(e.target.value)}
-            className={cn(!isKeyValid() ? "border-destructive italic" : "italic")}
-          />
-        </div>
-      </div>
-      <KeyGenerator lengthOTP={data.length} />
+      {
+        ["AES192", "AES256", "AES128", "OTP", "3DES"].includes(algorithm) && (
+          <div className="flex-1 space-y-2">
+            <Label
+              htmlFor="key1"
+              className={cn(!isKeyValid() ? "text-destructive font-bold" : "font-bold")}
+            >
+              Key {!isKeyValid() && "(must be valid length)"}
+            </Label>
+            <Input
+              id="key1"
+              placeholder="Enter key"
+              value={key}
+              onChange={(e) => setKey(e.target.value)}
+              className={cn(!isKeyValid() ? "border-destructive italic" : "italic")}
+            />
+          </div>
+        )
+      }
+      {
+        ["AES128", "AES192", "AES256", "3DES", "OTP"].includes(algorithm) && (
+          <KeyGenerator lengthOTP={data.length} />)
+      }
     </div>
   )
 }
