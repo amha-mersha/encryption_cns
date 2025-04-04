@@ -1,4 +1,6 @@
 import React, { useEffect, useRef } from "react";
+import { Alert, AlertDescription } from "./ui/alert";
+import { Clipboard } from "lucide-react";
 
 interface OutputDisplayProps {
   value?: string; // Encrypted data or success message
@@ -15,6 +17,7 @@ const OutputDisplay: React.FC<OutputDisplayProps> = ({ value }) => {
       textarea.style.height = textarea.scrollHeight + "px"; // Set to scrollHeight
     }
   }, [value]); // Run every time `value` changes
+
 
   return (
     <div>
