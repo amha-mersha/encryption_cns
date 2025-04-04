@@ -265,6 +265,60 @@
           "response": []
         }
       ]
+    }, 
+    {
+      "name": "RSA Encryption",
+      "item": [
+
+        {
+          "name": "RSA Encrypt",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"plaintext\": \"Hello from RSA\"}"
+            },
+            "url": {
+              "raw": "http://localhost:3000/api/encryption/rsa/encrypt",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3000",
+              "path": ["api","encryption", "rsa", "encrypt"]
+            }
+          },
+          "response": []
+          },
+          {
+            "name": "RSA Decrypt",
+            "request": {
+              "method": "POST",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": {
+                "mode": "raw",
+                "raw": "{\"encrypted\": \"PASTE_YOUR_ENCRYPTED_TEXT_HERE\"}"
+              },
+              "url": {
+                "raw": "http://localhost:3000/api/encryption/rsa/decrypt",
+                "protocol": "http",
+                "host": ["localhost"],
+                "port": "3000",
+                "path": ["api","encryption", "rsa", "decrypt"]
+              }
+            },
+            "response": []
+          }
+      ]
     }
   ],
   "protocolProfileBehavior": {}

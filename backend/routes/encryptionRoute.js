@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const encryptionController = require("../controllers/encryptionController");
+const rsaController = require("../controllers/rsaController");
 
 // OTP routes
 router.post("/otp/encrypt", encryptionController.encryptOTP);
@@ -16,5 +17,9 @@ router.post("/aes/decrypt", encryptionController.decryptAES);
 
 // Key generation
 router.get("/key/generate", encryptionController.generateKey);
+
+// RSA encryption
+router.post("/rsa/encrypt", rsaController.encryptRSA);
+router.post("/rsa/decrypt", rsaController.decryptRSA);
 
 module.exports = router;
