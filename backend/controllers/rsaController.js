@@ -5,9 +5,9 @@ const {
 
 class RSAController {
   async encryptRSA(req, res) {
-    const { plaintext } = req.body;
+    const { plaintext, public_key } = req.body;
     try {
-      const encrypted = encryptWithPublicKey(plaintext);
+      const encrypted = encryptWithPublicKey(plaintext, public_key);
       res.json({ encrypted });
     } catch (err) {
       res.status(500).json({ error: err.message });
@@ -15,9 +15,9 @@ class RSAController {
   }
 
   async decryptRSA(req, res) {
-    const { encrypted } = req.body;
+    const { encrypted, private_key } = req.body;
     try {
-      const decrypted = decryptWithPrivateKey(encrypted);
+      const decrypted = decryptWithPrivateKey(encrypted, private_key);
       res.json({ decrypted });
     } catch (err) {
       res.status(500).json({ error: err.message });
